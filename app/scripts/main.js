@@ -23,7 +23,7 @@ function checkAuth() {
   * @param {Object} authResult Authorization result.
   */
 function handleAuthResult(authResult) {
-  var authorizeDiv = document.getElementById('authorize-div');
+  var authorizeDiv = document.getElementById('auth');
   if (authResult && !authResult.error) {
     // Hide auth UI, then load client library.
     authorizeDiv.style.display = 'none';
@@ -59,31 +59,28 @@ function loadDriveApi() {
   */
 function listFiles() {
   var request = gapi.client.drive.files.list({
-      'maxResults': 10
+      'maxResults': 30
     });
 
-    request.execute(function(resp) {
-      appendPre('Files:');
-      var files = resp.items;
-      if (files && files.length > 0) {
-        for (var i = 0; i < files.length; i++) {
-          var file = files[i];
-          appendPre(file.title + ' (' + file.id + ')');
-        }
-      } else {
-        appendPre('No files found.');
-      }
+  var filesSection = $('#files');
+
+  request.execute(function(resp) {
+    appendFile('Files:', filesSection);
+    var files = resp.items;
+
+    files.forEach(function(file) {
+      appendFile(file.title + ' (' + file.id + ')', filesSection);
     });
+  });
 }
 
 /**
-  * Append a pre element to the body containing the given message
-  * as its text node.
+  * Adds a new element into our files section
   *
   * @param {string} message Text to be placed in pre element.
   */
-function appendPre(message) {
-  var pre = document.getElementById('output');
-  var textContent = document.createTextNode(message + '\n');
-  pre.appendChild(textContent);
+function appendFile(message, fileRef) {
+  var fileContainer = $('<li></li>');
+  fileContainer.append(message);
+  fileRef.append(fileContainer);
 }
