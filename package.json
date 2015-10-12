@@ -1,0 +1,23 @@
+{
+  "name": "gdrive-test-app",
+  "version": "1.0.0",
+  "description": "Test app for Google Drive",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thorsteinson/gdrive-test-app.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/thorsteinson/gdrive-test-app/issues"
+  },
+  "homepage": "https://github.com/thorsteinson/gdrive-test-app",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-server-livereload": "^1.5.3"
+  }
+}
