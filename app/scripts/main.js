@@ -65,11 +65,10 @@ function listFiles() {
   var filesSection = $('#files');
 
   request.execute(function(resp) {
-    appendFile('Files:', filesSection);
     var files = resp.items;
 
     files.forEach(function(file) {
-      appendFile(file.title + ' (' + file.id + ')', filesSection);
+      appendFile(file, filesSection);
     });
   });
 }
@@ -77,10 +76,24 @@ function listFiles() {
 /**
   * Adds a new element into our files section
   *
-  * @param {string} message Text to be placed in pre element.
+  * @param {object} file object
   */
-function appendFile(message, fileRef) {
-  var fileContainer = $('<li></li>');
-  fileContainer.append(message);
+function appendFile(file, fileRef) {
+  var fileContainer = $('<div>').addClass('file');
+  var title = $('<a>')
+        .attr('href', file.selfLink)
+        .append($('<h3>')
+          .append(file.title)
+          .addClass('title'));
+  var description = $('<p>')
+        .append(file.id)
+        .addClass('identity');
+
+  console.log(file);
+
+  fileContainer
+    .append(title)
+    .append(description);
+
   fileRef.append(fileContainer);
 }
