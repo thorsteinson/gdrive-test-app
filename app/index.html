@@ -1,26 +1,36 @@
 <html>
   <head>
-    <script type="text/javascript" src="scripts/main.js"></script>
+    <!-- Bootstrap 3.0 -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/main.css">
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
     <script src="https://raw.github.com/quirkey/sammy/master/lib/sammy.js"></script>
+    <script type="text/javascript" src="scripts/main.js"></script>
   </head>
   <body>
-    <header>
-      <h1>Google Drive Test App</h1>
+
+    <header class="container">
+      <div class="col-md-12">
+        <h1>Google Drive Test App</h1>
+      </div>
     </header>
 
     <section id="files">
-      <h2>File Listing</h2>
+      <div class="container">
+        <h2>File Listing</h2>
+      </div>
     </section>
 
     <section id="auth">
+      <div class="container">
         <span>Authorize access to Drive API</span>
         <!--Button for the user to click to initiate auth sequence -->
-        <button id="authorize-button" onclick="handleAuthClick(event)">
+        <button class="btn btn-default" id="authorize-button">
             Authorize
         </button>
+      </div>
     </section>
   </body>
 </html>

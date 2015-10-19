@@ -1,99 +1,104 @@
+$(document).ready(function() {
+  // Your Client ID can be retrieved from your project in the Google
+  // Developer Console, https://console.developers.google.com
+  var CLIENT_ID = '681676105907-omec1itmltlnknrdfo150qcn7pdt95ri.apps.googleusercontent.com';
 
-// Your Client ID can be retrieved from your project in the Google
-// Developer Console, https://console.developers.google.com
-var CLIENT_ID = '681676105907-omec1itmltlnknrdfo150qcn7pdt95ri.apps.googleusercontent.com';
+  var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 
-var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
-
-/**
-  * Check if current user has authorized this application.
-  */
-function checkAuth() {
-  gapi.auth.authorize(
-    {
-      'client_id': CLIENT_ID,
-      'scope': SCOPES.join(' '),
-      'immediate': true
-    }, handleAuthResult);
-}
-
-/**
-  * Handle response from authorization server.
-  *
-  * @param {Object} authResult Authorization result.
-  */
-function handleAuthResult(authResult) {
-  var authorizeDiv = document.getElementById('auth');
-  if (authResult && !authResult.error) {
-    // Hide auth UI, then load client library.
-    authorizeDiv.style.display = 'none';
-    loadDriveApi();
-  } else {
-    // Show auth UI, allowing the user to initiate authorization by
-    // clicking authorize button.
-    authorizeDiv.style.display = 'inline';
+  /**
+    * Check if current user has authorized this application.
+    */
+  function checkAuth() {
+    gapi.auth.authorize(
+      {
+        'client_id': CLIENT_ID,
+        'scope': SCOPES.join(' '),
+        'immediate': true
+      }, handleAuthResult);
   }
-}
 
-/**
-  * Initiate auth flow in response to user clicking authorize button.
-  *
-  * @param {Event} event Button click event.
-  */
-function handleAuthClick(event) {
-  gapi.auth.authorize(
-    {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
-    handleAuthResult);
-  return false;
-}
+  /**
+    * Handle response from authorization server.
+    *
+    * @param {Object} authResult Authorization result.
+    */
+  function handleAuthResult(authResult) {
+    var authorizeDiv = document.getElementById('auth');
+    if (authResult && !authResult.error) {
+      // Hide auth UI, then load client library.
+      authorizeDiv.style.display = 'none';
+      loadDriveApi();
+    } else {
+      // Show auth UI, allowing the user to initiate authorization by
+      // clicking authorize button.
+      authorizeDiv.style.display = 'inline';
+    }
+  }
 
-/**
-  * Load Drive API client library.
-  */
-function loadDriveApi() {
-  gapi.client.load('drive', 'v2', listFiles);
-}
+  /**
+    * Initiate auth flow in response to user clicking authorize button.
+    *
+    * @param {Event} event Button click event.
+    */
+  function handleAuthClick(event) {
+    console.log('Authorizing...');
+    gapi.auth.authorize(
+      {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+      handleAuthResult);
+    return false;
+  }
 
-/**
-  * Print files.
-  */
-function listFiles() {
-  var request = gapi.client.drive.files.list({
-      'maxResults': 30
+  /**
+    * Load Drive API client library.
+    */
+  function loadDriveApi() {
+    gapi.client.load('drive', 'v2', listFiles);
+  }
+
+  /**
+    * Print files.
+    */
+  function listFiles() {
+    var request = gapi.client.drive.files.list({
+        'maxResults': 30
+      });
+
+    var filesSection = $('#files');
+
+    request.execute(function(resp) {
+      var files = resp.items;
+
+      files.forEach(function(file) {
+        appendFile(file, filesSection);
+      });
     });
+  }
 
-  var filesSection = $('#files');
+  /**
+    * Adds a new element into our files section
+    *
+    * @param {object} file object
+    */
+  function appendFile(file, fileRef) {
+    var fileContainer = $('<div>').addClass('file');
+    var title = $('<a>')
+          .attr('href', file.selfLink)
+          .append($('<h3>')
+            .append(file.title)
+            .addClass('title'));
+    var description = $('<p>')
+          .append(file.id)
+          .addClass('identity');
 
-  request.execute(function(resp) {
-    var files = resp.items;
+    console.log(file);
 
-    files.forEach(function(file) {
-      appendFile(file, filesSection);
-    });
-  });
-}
+    fileContainer
+      .append(title)
+      .append(description);
 
-/**
-  * Adds a new element into our files section
-  *
-  * @param {object} file object
-  */
-function appendFile(file, fileRef) {
-  var fileContainer = $('<div>').addClass('file');
-  var title = $('<a>')
-        .attr('href', file.selfLink)
-        .append($('<h3>')
-          .append(file.title)
-          .addClass('title'));
-  var description = $('<p>')
-        .append(file.id)
-        .addClass('identity');
+    fileRef.append(fileContainer);
+  }
 
-  console.log(file);
+  $('#authorize-button').click(handleAuthClick);
 
-  fileContainer
-    .append(title)
-    .append(description);
-
-  fileRef.append(fileContainer);
-}
+});
