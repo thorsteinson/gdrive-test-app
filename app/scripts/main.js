@@ -109,6 +109,10 @@ $(document).ready(function() {
       });
       request.execute(function(resp) {
         console.log(resp);
+        self.files.remove(function(f) {
+          console.log(f);
+          return file.id === f.id;
+        });
       });
 
       // $.ajax({
