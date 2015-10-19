@@ -5,7 +5,7 @@ $(document).ready(function() {
   // Developer Console, https://console.developers.google.com
   var CLIENT_ID = '681676105907-omec1itmltlnknrdfo150qcn7pdt95ri.apps.googleusercontent.com';
 
-  var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
+  var SCOPES = ['https://www.googleapis.com/auth/drive'];
 
   // Authorization model
   function AuthModel(fileModel) {
@@ -97,21 +97,23 @@ $(document).ready(function() {
 
       request.execute(function(resp) {
         ko.utils.arrayPushAll(self.files, resp.items);
-        //self.files.valueHasMutated();
-
-        // resp.items.forEach(function(file) {
-        //   self.files.push(file);
-        //   console.log('File pushed');
-        // })
+        self.files.valueHasMutated();
       });
     }
 
     // Moves a file to the trash
     this.trashFile = function(file) {
       console.log('Deleting: ' + file.id);
+      var request = gapi.client.drive.files.trash({
+        'fileId': file.id
+      });
+      request.execute(function(resp) {
+        console.log(resp);
+      });
+
       // $.ajax({
       //   method: "POST",
-      //   url: "https://www.googleapis.com/drive/v2/files/" + fileID + "/trash"
+      //   url: "https://content.googleapis.com/drive/v2/files/" + file.id + "/trash"
       // }).then(function(resp) {
       //   console.log(resonse);
       // });
