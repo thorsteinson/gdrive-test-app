@@ -22,6 +22,13 @@
     <section id="files">
       <div class="container">
         <h2>File Listing</h2>
+        <div data-bind="foreach: files">
+          <div class="row">
+            <div class="col-md-4">
+              <h3 data-bind="text: title"></h3>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

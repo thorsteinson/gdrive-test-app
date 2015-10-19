@@ -1,38 +1,14 @@
 $(document).ready(function() {
+  'use strict';
+
   // Your Client ID can be retrieved from your project in the Google
   // Developer Console, https://console.developers.google.com
   var CLIENT_ID = '681676105907-omec1itmltlnknrdfo150qcn7pdt95ri.apps.googleusercontent.com';
 
   var SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly'];
 
-
-  /**
-    * Adds a new element into our files section
-    *
-    * @param {object} file object
-    */
-  function appendFile(file, fileRef) {
-    var fileContainer = $('<div>').addClass('file');
-    var title = $('<a>')
-          .attr('href', file.selfLink)
-          .append($('<h3>')
-            .append(file.title)
-            .addClass('title'));
-    var description = $('<p>')
-          .append(file.id)
-          .addClass('identity');
-
-    console.log(file);
-
-    fileContainer
-      .append(title)
-      .append(description);
-
-  }
-
-
   // Authorization model
-  function AuthModel() {
+  function AuthModel(fileModel) {
     var self = this;
 
     /**
@@ -53,7 +29,6 @@ $(document).ready(function() {
       * @param {Object} authResult Authorization result.
       */
     function handleAuthResult(authResult) {
-      var authorizeDiv = document.getElementById('auth');
       if (authResult && !authResult.error) {
         // Tell our model that everthing is authorized
         self.isAuthorized(true);
@@ -83,7 +58,8 @@ $(document).ready(function() {
       * Load Drive API client library.
       */
     function loadDriveApi() {
-      gapi.client.load('drive', 'v2', listFiles);
+      console.log(gapi.client);
+      gapi.client.load('drive', 'v2', fileModel.getFiles);
     }
 
     /**
@@ -91,17 +67,11 @@ $(document).ready(function() {
       */
     function listFiles() {
       var request = gapi.client.drive.files.list({
-          'maxResults': 30
-        });
-
-      var filesSection = $('#files');
+        'maxResults': 30
+      });
 
       request.execute(function(resp) {
         var files = resp.items;
-
-        files.forEach(function(file) {
-          appendFile(file, filesSection);
-        });
       });
     }
 
@@ -113,9 +83,27 @@ $(document).ready(function() {
   function FileModel() {
     var self = this;
 
+    // Keeps track of all the files 
+    this.files = ko.observableArray([]);
 
+    // Makes a request using the gapi
+    this.getFiles = function(maxFiles) {
+      maxFiles = maxFiles || 100; // 100 files by default
+      var request = gapi.client.drive.files.list({
+        'maxResults': maxFiles
+      });
+
+      request.execute(function(resp) {
+        resp.items.forEach(function(file) {
+          self.files.push(file);
+        });
+      });
+    }
   }
 
-  ko.applyBindings(new AuthModel());
-  // ko.applyBindings(new FileModel());
+  // Applies our models to the DOM
+  var fileModel = new FileModel();
+  var authModel = new AuthModel(fileModel);
+  ko.applyBindings(authModel, $('#auth').get(0));
+  ko.applyBindings(fileModel, $('#files').get(0));
 });
