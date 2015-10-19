@@ -11,10 +11,12 @@
   </head>
   <body>
 
-    <header class="container">
-      <div class="col-md-12">
-        <h1>Google Drive Test App</h1>
-      </div>
+    <header>
+      <div class="container">
+        <div class="col-md-12">
+          <h1>Google Drive Test App</h1>
+        </div>
+      </div> 
     </header>
 
     <section id="files">
@@ -23,11 +25,11 @@
       </div>
     </section>
 
-    <section id="auth">
+    <section data-bind="visible: !isAuthorized" id="auth">
       <div class="container">
         <span>Authorize access to Drive API</span>
         <!--Button for the user to click to initiate auth sequence -->
-        <button class="btn btn-default" id="authorize-button">
+        <button data-bind="click: handleAuth" class="btn btn-default" id="authorize-button">
             Authorize
         </button>
       </div>
