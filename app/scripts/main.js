@@ -81,6 +81,7 @@ $(document).ready(function() {
 
   // File Model
   function FileModel() {
+    console.log('FileModel Loaded');
     var self = this;
 
     // Keeps track of all the files 
@@ -88,16 +89,32 @@ $(document).ready(function() {
 
     // Makes a request using the gapi
     this.getFiles = function(maxFiles) {
+      console.log(gapi.client.drive);
       maxFiles = maxFiles || 100; // 100 files by default
       var request = gapi.client.drive.files.list({
         'maxResults': maxFiles
       });
 
       request.execute(function(resp) {
-        resp.items.forEach(function(file) {
-          self.files.push(file);
-        });
+        ko.utils.arrayPushAll(self.files, resp.items);
+        //self.files.valueHasMutated();
+
+        // resp.items.forEach(function(file) {
+        //   self.files.push(file);
+        //   console.log('File pushed');
+        // })
       });
+    }
+
+    // Moves a file to the trash
+    this.trashFile = function(file) {
+      console.log('Deleting: ' + file.id);
+      // $.ajax({
+      //   method: "POST",
+      //   url: "https://www.googleapis.com/drive/v2/files/" + fileID + "/trash"
+      // }).then(function(resp) {
+      //   console.log(resonse);
+      // });
     }
   }
 

@@ -26,11 +26,11 @@
           <div class="row">
             <div class="col-md-4">
               <h3 data-bind="text: title"></h3>
+              <button data-bind="click: $parent.trashFile" class="btn btn-warning">Delete</button>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
     <section data-bind="visible: !isAuthorized" id="auth">
       <div class="container">
