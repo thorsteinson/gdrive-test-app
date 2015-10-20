@@ -47,7 +47,6 @@ $(window).load(function() {
       */
     function handleAuthClick() {
       console.log('Authorizing...');
-      console.log(self);
       gapi.auth.authorize(
         {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
         handleAuthResult);
@@ -58,7 +57,6 @@ $(window).load(function() {
       * Load Drive API client library.
       */
     function loadDriveApi() {
-      console.log(gapi.client);
       gapi.client.load('drive', 'v2', fileModel.getFiles);
     }
 
@@ -81,44 +79,68 @@ $(window).load(function() {
 
   // File Model
   function FileModel() {
-    console.log('FileModel Loaded');
     var self = this;
 
     // Keeps track of all the files 
     this.files = ko.observableArray([]);
 
-    // Keeps track of no folders
-    this.pureFiles = ko.pureComputed(function() {
-      return files().filter(function(file) {
-        return file.kind === "dirve#file";
-      });
-    })
+    // Keeps track of metadata for files
+    this.fileMetaData = [];
 
     // Keeps track of just folders
-    this.folders = ko.observableArray([]);
+    this.folders = [];
 
     // Makes a request using the gapi
     this.getFiles = function(maxFiles) {
-      console.log(gapi.client.drive);
       maxFiles = maxFiles || 100; // 100 files by default
       var request = gapi.client.drive.files.list({
         'maxResults': maxFiles
       });
 
-      request.execute(function(resp) {
-        ko.utils.arrayPushAll(self.files, resp.items);
-        self.files.valueHasMutated();
-      });
+      retrieveMetaData()
+        .then(retrieveFolderIDs)
+        .then(createFileObjs)
+        .done(function() {
+          console.log('Finished everything');
+        })
 
-      var folderRequest = gapi.client.drive.children.list({
-        'folderId': 'root'
-      });
-      
-      request.execute(function(resp) {
-        resp.items.forEach(function(item) {
-          self.folders.push(items);
+      // Get the metadata for all files
+      function retrieveMetaData() {
+        var deferred = $.Deferred();
+        request.execute(function(resp) {
+          console.log('Request executed');
+          self.fileMetaData = resp.items;
+          deferred.resolve();
         });
-      });
+        
+        return deferred;
+      }
+
+      // Tells us what files are folders
+      // Need a separate call because google likes to make things complicated
+      function retrieveFolderIDs() {
+        var deferred = $.Deferred();
+        var folderRequest = gapi.client.drive.children.list({
+          'folderId': 'root'
+        });
+        
+        folderRequest.execute(function(resp) {
+          console.log('Request Executed');
+          self.folders = resp.items;
+          deferred.resolve();
+        });
+
+        return deferred;
+      }
+
+      // Now that we have all of the metadata, and the list of folders, what
+      // we can do is enhance our standard files, and add the boolean field,
+      // isFolder (for much better UX and convenience)
+      function createFileObjs() {
+        console.log(self.files);
+        console.log(self.fileMetaData);
+        console.log(self.folders);
+      }
     }
 
     // Moves a file to the trash
