@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(window).load(function() {
   'use strict';
 
   // Your Client ID can be retrieved from your project in the Google
