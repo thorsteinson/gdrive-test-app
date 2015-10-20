@@ -87,6 +87,16 @@ $(document).ready(function() {
     // Keeps track of all the files 
     this.files = ko.observableArray([]);
 
+    // Keeps track of no folders
+    this.pureFiles = ko.pureComputed(function() {
+      return files().filter(function(file) {
+        return file.kind === "dirve#file";
+      });
+    })
+
+    // Keeps track of just folders
+    this.folders = ko.observableArray([]);
+
     // Makes a request using the gapi
     this.getFiles = function(maxFiles) {
       console.log(gapi.client.drive);
@@ -98,6 +108,16 @@ $(document).ready(function() {
       request.execute(function(resp) {
         ko.utils.arrayPushAll(self.files, resp.items);
         self.files.valueHasMutated();
+      });
+
+      var folderRequest = gapi.client.drive.children.list({
+        'folderId': 'root'
+      });
+      
+      request.execute(function(resp) {
+        resp.items.forEach(function(item) {
+          self.folders.push(items);
+        });
       });
     }
 
@@ -114,13 +134,6 @@ $(document).ready(function() {
           return file.id === f.id;
         });
       });
-
-      // $.ajax({
-      //   method: "POST",
-      //   url: "https://content.googleapis.com/drive/v2/files/" + file.id + "/trash"
-      // }).then(function(resp) {
-      //   console.log(resonse);
-      // });
     }
   }
 

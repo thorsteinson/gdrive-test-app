@@ -31,6 +31,11 @@
             </div>
           </div>
         </div>
+        <div data-bind="foreach: folders">
+          <div class="col-md-4">
+            <h3 data-bind="text: title"></h3>
+          </div>
+        </div>
       </div>
 
     <section data-bind="visible: !isAuthorized" id="auth">
