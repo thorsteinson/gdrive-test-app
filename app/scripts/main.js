@@ -112,8 +112,8 @@ $(window).load(function() {
           self.fileMetaData = resp.items;
           deferred.resolve();
         });
-        
-        return deferred;
+
+        return deferred.promise();
       }
 
       // Tells us what files are folders
@@ -130,7 +130,7 @@ $(window).load(function() {
           deferred.resolve();
         });
 
-        return deferred;
+        return deferred.promise();
       }
 
       // Now that we have all of the metadata, and the list of folders, what
