@@ -23,18 +23,20 @@
     <section id="files">
       <div class="container">
         <h2>File Listing</h2>
-        <div data-bind="foreach: files">
-          <div class="row">
+        <div class="row">
             <div class="col-md-4">
-              <h3 data-bind="text: title"></h3>
-                <button data-bind="click: $parent.trashFile" class="btn btn-warning">Delete</button>
-                <a data-bind="attr: {href: alternateLink}" target="_blank"><button class="btn btn-primary">Open</button></a>
+              <div data-bind="foreach: files">
+                <div class="row">
+                  <h3 data-bind="text: title"></h3>
+                  <button data-bind="click: $parent.trashFile" class="btn btn-warning">Delete</button>
+                  <a data-bind="attr: {href: alternateLink}" target="_blank"><button class="btn btn-primary">Open</button></a>
+              </div>
             </div>
           </div>
-        </div>
-        <div data-bind="foreach: folders">
-          <div class="col-md-4">
-            <h3 data-bind="text: title"></h3>
+          <div class="col-md-4" data-bind="foreach: folders">
+            <div class="row">
+              <h3 data-bind="text: title"></h3>
+            </div>
           </div>
         </div>
       </div>

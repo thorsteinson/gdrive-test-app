@@ -77,6 +77,12 @@ $(window).load(function() {
     this.handleAuth = handleAuthClick();
   }
 
+  // This is the secret sauce for filtering out folders in Google drive.
+  // Makes no sense, but hey, it freaking works.
+  function isFolder(file) {
+    return file.mimeType === "application/vnd.google-apps.folder";
+  }
+
   // File Model
   function FileModel() {
     var self = this;
@@ -88,7 +94,7 @@ $(window).load(function() {
     this.fileMetaData = [];
 
     // Keeps track of just folders
-    this.folders = [];
+    this.folders = ko.observableArray([]);
 
     // Makes a request using the gapi
     this.getFiles = function(maxFiles) {
@@ -98,8 +104,10 @@ $(window).load(function() {
       });
 
       retrieveMetaData()
-        .then(retrieveFolderIDs)
-        .then(createFileObjs)
+        .then(function() {
+          createFolderObjs();
+          createFileObjs();
+        })
         .done(function() {
           console.log('Finished everything');
         })
@@ -108,38 +116,31 @@ $(window).load(function() {
       function retrieveMetaData() {
         var deferred = $.Deferred();
         request.execute(function(resp) {
-          console.log('Request executed');
-          self.fileMetaData = resp.items;
+          self.fileMetaData = resp.items.filter(function(file) {
+            return !file.explicitlyTrashed;
+          });
           deferred.resolve();
         });
 
         return deferred.promise();
       }
 
-      // Tells us what files are folders
-      // Need a separate call because google likes to make things complicated
-      function retrieveFolderIDs() {
-        var deferred = $.Deferred();
-        var folderRequest = gapi.client.drive.children.list({
-          'folderId': 'root'
-        });
-        
-        folderRequest.execute(function(resp) {
-          console.log('Request Executed');
-          self.folders = resp.items;
-          deferred.resolve();
-        });
-
-        return deferred.promise();
+      function createFolderObjs() {
+        self.fileMetaData.filter(isFolder)
+          .forEach(function(folder) {
+            self.folders.push(folder);
+          });
       }
 
       // Now that we have all of the metadata, and the list of folders, what
       // we can do is enhance our standard files, and add the boolean field,
       // isFolder (for much better UX and convenience)
       function createFileObjs() {
-        console.log(self.files);
-        console.log(self.fileMetaData);
-        console.log(self.folders);
+        // Adds all of the files to the observable array
+        self.fileMetaData.filter(_.negate(isFolder))
+          .forEach(function(file) {
+            self.files.push(file);
+          });
       }
     }
 
