@@ -74,6 +74,14 @@ $(window).load(function() {
   function FileModel() {
     var self = this;
 
+
+    // Keeps track of previous nav ID, if we need to go back
+    this.previousNav = [];
+
+    // Keeps track of current folder ID
+    // Root by default of course
+    this.currentNav = ko.observable('root');
+
     // Keeps track of all the files 
     this.files = ko.observableArray([]);
 
@@ -177,7 +185,21 @@ $(window).load(function() {
         xs[0].forEach(function(folder) {
           self.folders.push(folder);
         })
+
+        self.previousNav.push(self.currentNav());
+        self.currentNav(folder.id);
+        console.log(self.currentNav());
       });
+    }
+
+    // Goes back to the previous folder and updates the display
+    this.back = function() {
+      // Make sure we aren't at root
+      if (self.currentNav() !== 'root') {
+        console.log(self.previousNav);
+        self.currentNav(self.previousNav.pop());
+        self.navigateFolder({id: self.currentNav()});
+      }
     }
   }
 
