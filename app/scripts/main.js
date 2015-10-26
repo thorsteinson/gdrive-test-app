@@ -60,19 +60,6 @@ $(window).load(function() {
       gapi.client.load('drive', 'v2', fileModel.getFiles);
     }
 
-    /**
-      * Print files.
-      */
-    function listFiles() {
-      var request = gapi.client.drive.files.list({
-        'maxResults': 30
-      });
-
-      request.execute(function(resp) {
-        var files = resp.items;
-      });
-    }
-
     this.isAuthorized = ko.observable(false);
     this.handleAuth = handleAuthClick();
   }
@@ -96,9 +83,17 @@ $(window).load(function() {
     // Keeps track of just folders
     this.folders = ko.observableArray([]);
 
+    // Helper function for filtering results
+    function filterFiles(files) {
+      return files.filter(function(file) {
+        return !file.explicitlyTrashed &&
+          file.owners[0].displayName === "Caleb Thorsteinson";
+      });
+    }
+
     // Makes a request using the gapi
     this.getFiles = function(maxFiles) {
-      maxFiles = maxFiles || 100; // 100 files by default
+      maxFiles = maxFiles || 1000; // 1000 files by default
       var request = gapi.client.drive.files.list({
         'maxResults': maxFiles
       });
@@ -116,9 +111,11 @@ $(window).load(function() {
       function retrieveMetaData() {
         var deferred = $.Deferred();
         request.execute(function(resp) {
-          self.fileMetaData = resp.items.filter(function(file) {
-            return !file.explicitlyTrashed;
-          });
+          console.log('Here are the response results');
+          console.log(resp);
+          // Filters non trashed files, and files that I OWN
+          // Otherwise will show things in shared folders I may no want shown
+          self.fileMetaData = filterFiles(resp.items);
           deferred.resolve();
         });
 
@@ -156,6 +153,30 @@ $(window).load(function() {
           console.log(f);
           return file.id === f.id;
         });
+      });
+    }
+
+    // updates the model to show the folder of whatever was clicked
+    this.navigateFolder = function(folder) {
+      var request = gapi.client.drive.files.list({
+        'maxResults': 1000,
+        'q': '\'' + folder.id + '\' in parents'
+      });
+      request.execute(function (resp) {
+        // With a good response, can update our model
+        // This will then automatically update our view
+        self.fileMetaData = filterFiles(resp.items);
+        var xs = _.partition(self.fileMetaData, isFolder);
+        self.files.removeAll();
+        // Reset files and add new ones
+        xs[1].forEach(function(file) {
+          self.files.push(file);
+        });
+        // Reset folders and add new ones
+        self.folders.removeAll();
+        xs[0].forEach(function(folder) {
+          self.folders.push(folder);
+        })
       });
     }
   }
